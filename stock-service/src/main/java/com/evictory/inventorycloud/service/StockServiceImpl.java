@@ -1,6 +1,6 @@
 package com.evictory.inventorycloud.service;
 
-public class StockServiceImpl {
+public class StockServiceImpl implements StockService {
 	
 
 	// Sahan Add your stock controller methods
