@@ -1,5 +1,4 @@
 package com.evictory.inventorycloud.service;
-
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ public class StockServiceImpl implements StockService {
 	
 	@Autowired
 	StockDetailsRepository stockDetailsRepository;
-
 	
 
 	// Sahan Add your stock controller methods
