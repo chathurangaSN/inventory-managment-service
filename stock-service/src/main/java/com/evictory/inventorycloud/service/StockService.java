@@ -2,27 +2,27 @@ package com.evictory.inventorycloud.service;
 
 import java.util.List;
 
-import com.evictory.inventorycloud.modal.Stock;
-import com.evictory.inventorycloud.modal.StockDetails;
+import com.evictory.inventorycloud.modal.DraftLog;
+import com.evictory.inventorycloud.modal.DraftDetails;
 
 public interface StockService {
 
 
-	Boolean saveAll(Stock stock); // save all stock details with log
+	Boolean saveAll(DraftLog draftLog); // save all stock details with log
 
-	List<Stock> fetchAll(); // get all stock details with log
+	List<DraftLog> fetchAll(); // get all stock details with log
 
-	Boolean saveEntry(Stock stock); // save only stock log
+	Boolean saveEntry(DraftLog draftLog); // save only stock log
 
-	Boolean updateEntry(Integer id, Stock stock); // update stock log // pass id of stock log
+	Boolean updateEntry(Integer id, DraftLog draftLog); // update stock log // pass id of stock log
 
-	Stock fetchEntry(Integer id); // get stock log  // pass id of stock log
+	DraftLog fetchEntry(Integer id); // get stock log  // pass id of stock log
 
 	Boolean deleteEntry(Integer id); // delete stock log  // pass id of stock log
 
-	Boolean saveDetails(Integer id, StockDetails details); // create stock details for respective stock log // pass id of stock log
+	Boolean saveDetails(Integer id, DraftDetails details); // create stock details for respective stock log // pass id of stock log
 
-	Boolean updateDetails(Integer id, StockDetails details); // update stock details for respective stock log // pass id of stock details
+	Boolean updateDetails(Integer id, DraftDetails details); // update stock details for respective stock log // pass id of stock details
 
 	Boolean deleteDetails(Integer id); // delete stock details // pass id of stock details
 

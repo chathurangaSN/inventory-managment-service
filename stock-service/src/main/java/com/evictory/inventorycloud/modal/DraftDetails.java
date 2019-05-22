@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-public class StockDetails {
+public class DraftDetails {
 
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +37,7 @@ public class StockDetails {
     @ManyToOne
     @JoinColumn(name = "OSid")
     @JsonIgnore
-    Stock stock;
+    DraftLog draftLog;
 
 	public Integer getId() {
 		return id;
@@ -55,22 +55,6 @@ public class StockDetails {
 		this.itemId = itemId;
 	}
 
-	public Integer getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
-	}
-
-	public Stock getStock() {
-		return stock;
-	}
-
-	public void setStock(Stock stock) {
-		this.stock = stock;
-	}
-
 	public Integer getUmoId() {
 		return umoId;
 	}
@@ -86,7 +70,24 @@ public class StockDetails {
 	public void setBrandId(Integer brandId) {
 		this.brandId = brandId;
 	}
-    
+
+	public Integer getQuantity() {
+		return quantity;
+	}
+
+	public void setQuantity(Integer quantity) {
+		this.quantity = quantity;
+	}
+
+	public DraftLog getDraftLog() {
+		return draftLog;
+	}
+
+	public void setDraftLog(DraftLog draftLog) {
+		this.draftLog = draftLog;
+	}
+
+	
 	
     
 }

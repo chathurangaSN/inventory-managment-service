@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.evictory.inventorycloud.exception.MessageBodyConstraintViolationException;
-import com.evictory.inventorycloud.modal.Stock;
-import com.evictory.inventorycloud.modal.StockDetails;
+import com.evictory.inventorycloud.modal.DraftLog;
+import com.evictory.inventorycloud.modal.DraftDetails;
 import com.evictory.inventorycloud.service.StockService;
 
 @RestController
@@ -42,11 +42,11 @@ public class StockController {
 	
 	
 	
-		@RequestMapping(value = "/openstock", method = RequestMethod.POST) // create  stock log with all its respective details
-	    public ResponseEntity<?> saveAll(@Valid @RequestBody Stock stock)  {
+		@RequestMapping(value = "/openstock/draft", method = RequestMethod.POST) // create  stock log with all its respective details
+	    public ResponseEntity<?> saveAll(@Valid @RequestBody DraftLog draftLog)  {
 			
-			stock.setDate(ZonedDateTime.now(ZoneId.of("UTC-4")));
-	        if(stockService.saveAll(stock)) {
+			draftLog.setDate(ZonedDateTime.now(ZoneId.of("UTC-4")));
+	        if(stockService.saveAll(draftLog)) {
 	        	return ResponseEntity.status(HttpStatus.ACCEPTED).body(oncall(true,"POST"));				
 			}else {				
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(oncall(false,"POST"));
@@ -55,10 +55,10 @@ public class StockController {
 	    }
 		
 		
-	    @RequestMapping(value = "/openstock", method = RequestMethod.GET) // fetch all stock logs with its respective stock details
+	    @RequestMapping(value = "/openstock/draft", method = RequestMethod.GET) // fetch all stock logs with its respective stock details
 	    public ResponseEntity<?> fetchAll() { 
 	    	
-	    	List<Stock> openStocks = stockService.fetchAll();
+	    	List<DraftLog> openStocks = stockService.fetchAll();
 			if(openStocks == null || openStocks.size() == 0) {
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(oncall(false,"GET"));
 			}else {
@@ -67,11 +67,11 @@ public class StockController {
 		}
 	    
 	 
-	    @RequestMapping(value = "/openstock/entry", method = RequestMethod.POST)  // create a new stock log only
-	    public ResponseEntity<?> saveEntry(@RequestBody Stock stock) {
+	    @RequestMapping(value = "/openstock/draft/entry", method = RequestMethod.POST)  // create a new stock log only
+	    public ResponseEntity<?> saveEntry(@RequestBody DraftLog draftLog) {
 
-	    	stock.setDate(ZonedDateTime.now(ZoneId.of("UTC-4")));
-	        if(stockService.saveEntry(stock)) {
+	    	draftLog.setDate(ZonedDateTime.now(ZoneId.of("UTC-4")));
+	        if(stockService.saveEntry(draftLog)) {
 	        	return ResponseEntity.status(HttpStatus.ACCEPTED).body(oncall(true,"POST"));				
 			}else {				
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(oncall(false,"POST"));
@@ -79,27 +79,27 @@ public class StockController {
 	    }
 	    
 	 
-	    @RequestMapping(value = "/openstock/entry/{id}", method = RequestMethod.PUT) // update existing stock details entry
-	    public ResponseEntity<?> updateEntry(@PathVariable Integer id, @RequestBody Stock stock){ // open stock log id
+	    @RequestMapping(value = "/openstock/draft/entry/{id}", method = RequestMethod.PUT) // update existing stock details entry
+	    public ResponseEntity<?> updateEntry(@PathVariable Integer id, @RequestBody DraftLog draftLog){ // open stock log id
 	    	
-	    	if(stockService.updateEntry(id, stock)) {
+	    	if(stockService.updateEntry(id, draftLog)) {
 	        	return ResponseEntity.status(HttpStatus.ACCEPTED).body(oncall(true,"PUT"));				
 			}else {				
 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(oncall(false,"PUT"));
 			}
 	    }
 	    
-	    @RequestMapping(value = "/openstock/entry/{id}", method = RequestMethod.GET) // fetch a stock log by id
+	    @RequestMapping(value = "/openstock/draft/entry/{id}", method = RequestMethod.GET) // fetch a stock log by id
 	    public ResponseEntity<?> fetchEntry(@PathVariable Integer id) {
-	    	Stock stock = stockService.fetchEntry(id);
-	    	if (stock == null) {
+	    	DraftLog draftLog = stockService.fetchEntry(id);
+	    	if (draftLog == null) {
 	    		throw new MessageBodyConstraintViolationException("Stock log entry not available.");
 			}
-	    	return ResponseEntity.status(HttpStatus.ACCEPTED).body(stock);
+	    	return ResponseEntity.status(HttpStatus.ACCEPTED).body(draftLog);
 			
 		}
 	     
-	    @RequestMapping(value = "/openstock/entry/{id}", method = RequestMethod.DELETE) // delete existing stock log with its details
+	    @RequestMapping(value = "/openstock/draft/entry/{id}", method = RequestMethod.DELETE) // delete existing stock log with its details
 	    public ResponseEntity<?> deleteEntry(@PathVariable Integer id){
 	    	
 	    	if(stockService.deleteEntry(id)) {
@@ -112,10 +112,10 @@ public class StockController {
 	    }
 		
 	    // create a new open stock detail entry for an existing stock log 
-	    @RequestMapping(value = "/openstock/details/{id}", method = RequestMethod.POST)
-	    public ResponseEntity<?> saveDetails(@PathVariable Integer id, @RequestBody StockDetails stockDetails) {
+	    @RequestMapping(value = "/openstock/draft/details/{id}", method = RequestMethod.POST)
+	    public ResponseEntity<?> saveDetails(@PathVariable Integer id, @RequestBody DraftDetails draftDetails) {
 	    	
-	    	if(stockService.saveDetails(id, stockDetails)) {
+	    	if(stockService.saveDetails(id, draftDetails)) {
 				return ResponseEntity.status(HttpStatus.ACCEPTED).body(oncall(true,"POST"));
 			}else {
 				
@@ -124,8 +124,8 @@ public class StockController {
 	    }
 		
 	    // update existing stock details entry
-	    @RequestMapping(value = "/openstock/details/{sid}", method = RequestMethod.PUT)
-	    public ResponseEntity<?>  updateDetails(@Valid @PathVariable String sid, @RequestBody StockDetails details){
+	    @RequestMapping(value = "/openstock/draft/details/{sid}", method = RequestMethod.PUT)
+	    public ResponseEntity<?>  updateDetails(@Valid @PathVariable String sid, @RequestBody DraftDetails details){
 	     	    int id;	
 	    	if(!NumberUtils.isCreatable(sid)) {
 	    		throw new RuntimeException( "ID should be an Interger");
@@ -142,7 +142,7 @@ public class StockController {
 	    }
 	    
 	 // delete existing stock details entry
-	    @RequestMapping(value = "/openstock/details/{id}", method = RequestMethod.DELETE)
+	    @RequestMapping(value = "/openstock/draft/details/{id}", method = RequestMethod.DELETE)
 	    public ResponseEntity<?>  deleteDetails(@PathVariable Integer id){
 	     
 	    	
@@ -155,7 +155,7 @@ public class StockController {
 	    }
 	    
 	    // fetch all stock details by stock log by id
-	    @RequestMapping(value = "/openstock/detailsAll/{id}", method = RequestMethod.DELETE)
+	    @RequestMapping(value = "/openstock/draft/detailsAll/{id}", method = RequestMethod.DELETE)
 	    public ResponseEntity<?> deleteAllDetails(@PathVariable Integer id) {
 
 	    	if(stockService.deleteAllDetails(id)) {

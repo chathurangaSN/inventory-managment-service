@@ -7,27 +7,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.evictory.inventorycloud.exception.MessageBodyConstraintViolationException;
-import com.evictory.inventorycloud.modal.Stock;
-import com.evictory.inventorycloud.modal.StockDetails;
-import com.evictory.inventorycloud.repository.StockDetailsRepository;
-import com.evictory.inventorycloud.repository.StockRepository;
+import com.evictory.inventorycloud.modal.DraftLog;
+import com.evictory.inventorycloud.modal.DraftDetails;
+import com.evictory.inventorycloud.repository.DraftDetailsRepository;
+import com.evictory.inventorycloud.repository.DraftLogRepository;
 
 @Service
 public class StockServiceImpl implements StockService {
 	
 	@Autowired
-	StockRepository stockRepository;
+	DraftLogRepository draftLogRepository;
 	
 	@Autowired
-	StockDetailsRepository stockDetailsRepository;
+	DraftDetailsRepository draftDetailsRepository;
 	
 	
 	@Override
-	public Boolean saveAll(Stock stock) { // save all stock details with log
-		if(stock == null) {
+	public Boolean saveAll(DraftLog draftLog) { // save all stock details with log
+		if(draftLog == null) {
 			throw new MessageBodyConstraintViolationException("Response body is empty");
 		}else {
-			List<StockDetails> details = stock.getStockDetails();
+			List<DraftDetails> details = draftLog.getDraftDetails();
 			for (int i = 0; i < details.size(); i++) {
 				if(details.get(i).getItemId() == null || details.get(i).getQuantity() == null 
 						|| details.get(i).getBrandId() == null || details.get(i).getUmoId() == null) {
@@ -41,43 +41,43 @@ public class StockServiceImpl implements StockService {
 //				}
 				
 			}
-			System.out.println("Get user name "+stock.getUser());
-			for(StockDetails stockDetails:stock.getStockDetails()) {
-				stockDetails.setStock(stock);
-	            System.out.println("dasf" + stock.getStockDetails());
+			System.out.println("Get user name "+draftLog.getUser());
+			for(DraftDetails draftDetails:draftLog.getDraftDetails()) {
+				draftDetails.setDraftLog(draftLog);
+	            System.out.println("dasf" + draftLog.getDraftDetails());
 	        }
-	        stockRepository.save(stock);
+	        draftLogRepository.save(draftLog);
 	        return true;
 		}
 	}
 
 	@Override
-	public List<Stock> fetchAll() { // get all stock details with log
-		return stockRepository.findAll();
+	public List<DraftLog> fetchAll() { // get all stock details with log
+		return draftLogRepository.findAll();
 	}
 
 	@Override
-	public Boolean saveEntry(Stock stock) {  // save only stock log
+	public Boolean saveEntry(DraftLog draftLog) {  // save only stock log
 		
-		if(stock == null) {
+		if(draftLog == null) {
 			throw new MessageBodyConstraintViolationException("Response body is empty");
 		}else {
-	        stockRepository.save(stock);
+	        draftLogRepository.save(draftLog);
 	        return true;
 		}
 	}
 
 	@Override
-	public Boolean updateEntry(Integer id, Stock stock) { // update stock log // pass id of stock log
+	public Boolean updateEntry(Integer id, DraftLog draftLog) { // update stock log // pass id of stock log
 		
-		boolean isExist = stockRepository.existsById(id);
+		boolean isExist = draftLogRepository.existsById(id);
 		if(isExist) { 
-			Optional<Stock> optional= stockRepository.findById(id);
-			Stock update = optional.get();
-			update.setReason(stock.getReason());
-			update.setUser(stock.getUser());
+			Optional<DraftLog> optional= draftLogRepository.findById(id);
+			DraftLog update = optional.get();
+			update.setReason(draftLog.getReason());
+			update.setUser(draftLog.getUser());
 			
-			stockRepository.save(update);
+			draftLogRepository.save(update);
 			return true;
 		}else {
 			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
@@ -85,13 +85,13 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Override
-	public Stock fetchEntry(Integer id) {  // get stock log  // pass id of stock log
-		boolean isExist = stockRepository.existsById(id);
+	public DraftLog fetchEntry(Integer id) {  // get stock log  // pass id of stock log
+		boolean isExist = draftLogRepository.existsById(id);
 		if(isExist) {
 			System.out.println("have");
-			Optional<Stock> optional= stockRepository.findById(id);
-			Stock stock = optional.get();
-			return stock;
+			Optional<DraftLog> optional= draftLogRepository.findById(id);
+			DraftLog draftLog = optional.get();
+			return draftLog;
 		}else {
 			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
 		}
@@ -99,10 +99,10 @@ public class StockServiceImpl implements StockService {
 
 	@Override
 	public Boolean deleteEntry(Integer id) { // delete stock log  // pass id of stock log
-		boolean isExist = stockRepository.existsById(id);
+		boolean isExist = draftLogRepository.existsById(id);
 		if(isExist) {
 			System.out.println("have");
-			stockRepository.deleteById(id);
+			draftLogRepository.deleteById(id);
 			return true;
 		}else {
 			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
@@ -110,14 +110,14 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Override
-	public Boolean saveDetails(Integer id, StockDetails details) {  // create stock details for respective stock log // pass id of stock log
+	public Boolean saveDetails(Integer id, DraftDetails details) {  // create stock details for respective stock log // pass id of stock log
 
-		boolean isExist = stockRepository.existsById(id);
+		boolean isExist = draftLogRepository.existsById(id);
 		if(isExist) {
-			Optional<Stock> optional= stockRepository.findById(id);
-			Stock stock = optional.get();
-			details.setStock(stock);
-			stockDetailsRepository.save(details);
+			Optional<DraftLog> optional= draftLogRepository.findById(id);
+			DraftLog draftLog = optional.get();
+			details.setDraftLog(draftLog);
+			draftDetailsRepository.save(details);
 			return true;
 		}else {
 			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
@@ -126,18 +126,18 @@ public class StockServiceImpl implements StockService {
 	}
 
 	@Override
-	public Boolean updateDetails(Integer id, StockDetails details) {  // update stock details for respective stock log // pass id of stock details
+	public Boolean updateDetails(Integer id, DraftDetails details) {  // update stock details for respective stock log // pass id of stock details
 		
-		boolean isExist = stockDetailsRepository.existsById(id);
+		boolean isExist = draftDetailsRepository.existsById(id);
 		if(isExist) {
-			Optional<StockDetails> optional= stockDetailsRepository.findById(id);
-			StockDetails stockDetails = optional.get();
-			stockDetails.setItemId(details.getItemId());
-			stockDetails.setQuantity(details.getQuantity());
-			stockDetails.setBrandId(details.getBrandId());
-			stockDetails.setUmoId(details.getUmoId());
+			Optional<DraftDetails> optional= draftDetailsRepository.findById(id);
+			DraftDetails draftDetails = optional.get();
+			draftDetails.setItemId(details.getItemId());
+			draftDetails.setQuantity(details.getQuantity());
+			draftDetails.setBrandId(details.getBrandId());
+			draftDetails.setUmoId(details.getUmoId());
 			
-			stockDetailsRepository.save(stockDetails);
+			draftDetailsRepository.save(draftDetails);
 			return true;
 		}else {
 			throw new MessageBodyConstraintViolationException("Stock details entry not available.");
@@ -149,9 +149,9 @@ public class StockServiceImpl implements StockService {
 	@Override
 	public Boolean deleteDetails(Integer id) {  // delete stock details // pass id of stock details
 		
-		boolean isExist = stockDetailsRepository.existsById(id);
+		boolean isExist = draftDetailsRepository.existsById(id);
 		if(isExist) {
-			stockDetailsRepository.deleteById(id);
+			draftDetailsRepository.deleteById(id);
 			return true;
 		}else {
 			throw new MessageBodyConstraintViolationException("Stock details entry not available.");
@@ -161,9 +161,9 @@ public class StockServiceImpl implements StockService {
 
 	@Override
 	public Boolean deleteAllDetails(Integer id) { // delete all stock details for stock log // pass stock log id
-		boolean isExist = stockRepository.existsById(id);
+		boolean isExist = draftLogRepository.existsById(id);
 		if(isExist) {
-			Optional<Stock> optional = stockRepository.findById(id);
+			Optional<DraftLog> optional = draftLogRepository.findById(id);
 			if(optional.isPresent()) {
 				Integer gotId = 0;
 //				for (int i = 0; i < optional.get().getStockDetails().size(); i++) {
@@ -173,7 +173,7 @@ public class StockServiceImpl implements StockService {
 //					
 ////					(optional.get().getStockDetails().get(i));
 //				}
-				stockDetailsRepository.deleteById(1);
+				draftDetailsRepository.deleteById(1);
 			}
 			return true;
 		}else {
