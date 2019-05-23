@@ -7,9 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.evictory.inventorycloud.exception.MessageBodyConstraintViolationException;
+import com.evictory.inventorycloud.modal.CurrentStock;
 import com.evictory.inventorycloud.modal.TransactionDetails;
 import com.evictory.inventorycloud.modal.TransactionLog;
-
+import com.evictory.inventorycloud.repository.CurrentStockRepository;
 import com.evictory.inventorycloud.repository.TransactionLogRepository;
 
 @Service
@@ -17,16 +18,68 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 
 	@Autowired
 	TransactionLogRepository transactionLogRepository;
+	@Autowired
+	CurrentStockRepository currentStockRepository;
 
 	@Override
 	public Boolean save(TransactionLog transactionLog) {
-
+		String issue = "issue";
 		if (transactionLog == null) {
 			throw new NullPointerException("Response body is empty");
 		} else {
 			for (TransactionDetails transactionDetails : transactionLog.getTransactionDetails()) {
 				transactionDetails.setTransactionlog(transactionLog);
+/////////////////
+				List<CurrentStock> currentStocks = currentStockRepository.findAll();
+				if (currentStocks == null || currentStocks.size() == 0) {
+					if (transactionLog.getType().equals(issue)) {
+						CurrentStock currentStock = new CurrentStock();
+						currentStock.setItemId(transactionDetails.getItemId());
+						currentStock.setUomId(transactionDetails.getUomId());
+						currentStock.setBrandId(transactionDetails.getBrandId());
+						currentStock.setQuantity(transactionDetails.getQuantity());
+						currentStockRepository.save(currentStock);
+					}
+					else {
+						throw new MessageBodyConstraintViolationException("Not enough stocks");
+					}
+				} else {
+					for (CurrentStock currentStock : currentStocks) {
+						if (currentStock.getItemId() == transactionDetails.getItemId()
+								&& currentStock.getUomId() == transactionDetails.getUomId()
+								&& currentStock.getBrandId() == transactionDetails.getBrandId()) {
+							if (transactionLog.getType().equals(issue)) {
+								currentStock.setQuantity(currentStock.getQuantity() + transactionDetails.getQuantity());
+								//currentStockRepository.save(currentStock);
+							} else {
+								Double qty =0.0;
+								qty = currentStock.getQuantity() - transactionDetails.getQuantity();
+								if(qty < 0.0) {
+									throw new MessageBodyConstraintViolationException("Not enough stocks");
+								}else {
+									currentStock.setQuantity(currentStock.getQuantity() - transactionDetails.getQuantity());
+									currentStockRepository.save(currentStock);
+								}
+								
+							}
+						} else {
+							CurrentStock currentStockNew = new CurrentStock();
+							if (transactionLog.getType().equals(issue)) {
+								currentStockNew.setItemId(transactionDetails.getItemId());
+								currentStockNew.setUomId(transactionDetails.getUomId());
+								currentStockNew.setBrandId(transactionDetails.getBrandId());
+								currentStockNew.setQuantity(transactionDetails.getQuantity());
+								currentStockRepository.save(currentStockNew);
+							}
+							else {
+								throw new MessageBodyConstraintViolationException("Not enough stocks");
+							}
+						}
+					}
+				}
+				//////////////////
 			}
+
 			transactionLogRepository.save(transactionLog);
 			return true;
 		}
