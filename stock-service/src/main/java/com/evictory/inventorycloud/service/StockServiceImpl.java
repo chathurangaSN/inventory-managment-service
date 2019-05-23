@@ -1,4 +1,5 @@
 package com.evictory.inventorycloud.service;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,9 +9,12 @@ import org.springframework.stereotype.Service;
 
 import com.evictory.inventorycloud.exception.MessageBodyConstraintViolationException;
 import com.evictory.inventorycloud.modal.DraftLog;
+import com.evictory.inventorycloud.modal.Stock;
+import com.evictory.inventorycloud.modal.StockDetails;
 import com.evictory.inventorycloud.modal.DraftDetails;
 import com.evictory.inventorycloud.repository.DraftDetailsRepository;
 import com.evictory.inventorycloud.repository.DraftLogRepository;
+import com.evictory.inventorycloud.repository.StockRepository;
 
 @Service
 public class StockServiceImpl implements StockService {
@@ -21,6 +25,8 @@ public class StockServiceImpl implements StockService {
 	@Autowired
 	DraftDetailsRepository draftDetailsRepository;
 	
+	@Autowired
+	StockRepository stockRepository;
 	
 	@Override
 	public Boolean saveAll(DraftLog draftLog) { // save all stock details with log
@@ -166,14 +172,14 @@ public class StockServiceImpl implements StockService {
 			Optional<DraftLog> optional = draftLogRepository.findById(id);
 			if(optional.isPresent()) {
 				Integer gotId = 0;
-//				for (int i = 0; i < optional.get().getStockDetails().size(); i++) {
-//					gotId= optional.get().getStockDetails().get(i).getId();
-//					
-//					System.out.println("sdasfdfsd  " +gotId);
-//					
-////					(optional.get().getStockDetails().get(i));
-//				}
-				draftDetailsRepository.deleteById(1);
+				for (int i = 0; i < optional.get().getDraftDetails().size(); i++) {
+					gotId= optional.get().getDraftDetails().get(i).getId();
+					
+					System.out.println("sdasfdfsd  " +gotId);
+					draftDetailsRepository.deleteById(gotId);
+//					(optional.get().getStockDetails().get(i));
+				}
+			
 			}
 			return true;
 		}else {
@@ -181,7 +187,58 @@ public class StockServiceImpl implements StockService {
 		}
 	}
 
+	@Override
+	public Boolean saveToMaster(Integer id) { // fetch all draft log entry details and push it as a new entry to stock log and delete if existing draft log
+		boolean isExist = draftLogRepository.existsById(id);
+		if(isExist) {
+			Optional<DraftLog> optional= draftLogRepository.findById(id);
+			DraftLog draftLog = optional.get();
+			Stock stock = new Stock();
+			stock.setDate(draftLog.getDate());
+			stock.setReason(draftLog.getReason());
+			stock.setUser(draftLog.getUser());
+			List<StockDetails> stockDetails= new ArrayList<StockDetails>();
+			
+			for (int i = 0; i < draftLog.getDraftDetails().size(); i++) {
+				StockDetails details = new StockDetails();
+				details.setBrandId(draftLog.getDraftDetails().get(i).getBrandId());
+				details.setItemId(draftLog.getDraftDetails().get(i).getItemId());
+				details.setQuantity(draftLog.getDraftDetails().get(i).getQuantity());
+				details.setUmoId(draftLog.getDraftDetails().get(i).getUmoId());
+				stockDetails.add(details);
+			}
+			stock.setStockDetails(stockDetails);
+			
+			for(StockDetails details:stock.getStockDetails()) {
+				details.setStock(stock);
+				
+	        }
+			stockRepository.save(stock);
+			draftLogRepository.deleteById(id);
+			return true;
+		}else {
+			throw new MessageBodyConstraintViolationException("Stock details entry not available.");
+		}
+	}
 	
 	
+	@Override
+	public List<Stock> fetchAllMaster() { // fetch all permanent added stock entries with details
+		
+		return stockRepository.findAll();
+	}
+	
+	@Override
+	public Stock fetchMaster(Integer id) { // fetch  permanent added stock entries with details by id
+		
+		boolean isExist = stockRepository.existsById(id);
+		if(isExist) {
+			Optional<Stock> optional= stockRepository.findById(id);
+			Stock stock = optional.get();
+			return stock;
+		}else {
+			throw new MessageBodyConstraintViolationException("Stock log entry is not available.");
+		}
+	}
 
 }

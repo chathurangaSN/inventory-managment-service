@@ -3,6 +3,7 @@ package com.evictory.inventorycloud.service;
 import java.util.List;
 
 import com.evictory.inventorycloud.modal.DraftLog;
+import com.evictory.inventorycloud.modal.Stock;
 import com.evictory.inventorycloud.modal.DraftDetails;
 
 public interface StockService {
@@ -28,6 +29,9 @@ public interface StockService {
 
 	Boolean deleteAllDetails(Integer id); // delete all stock details for stock log // pass stock log id
 
+	Boolean saveToMaster(Integer id);  // fetch all draft log entry details and push it as a new entry to stock log and delete if existing draft log
 
-
+	List<Stock> fetchAllMaster(); // fetch all permanent added stock entries with details
+	
+	Stock fetchMaster(Integer id); // fetch  permanent added stock entries with details by id
 }
