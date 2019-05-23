@@ -22,7 +22,7 @@ public class TransactionLog {
 	
 	 @OneToMany(mappedBy = "transactionlog", cascade = CascadeType.ALL)
 	    List<TransactionDetails> transactionDetails;
-	 
+
 	public Integer getId() {
 		return id;
 	}
@@ -62,6 +62,7 @@ public class TransactionLog {
 	public void setTransactionDetails(List<TransactionDetails> transactionDetails) {
 		this.transactionDetails = transactionDetails;
 	}
-
+	 
+	
 	
 }
