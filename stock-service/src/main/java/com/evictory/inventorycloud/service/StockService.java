@@ -34,4 +34,6 @@ public interface StockService {
 	List<Stock> fetchAllMaster(); // fetch all permanent added stock entries with details
 	
 	Stock fetchMaster(Integer id); // fetch  permanent added stock entries with details by id
+	
+	Stock fetchMasterLastEntry(String date); // fetch  the last entry on open stock by date 
 }

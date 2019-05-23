@@ -26,7 +26,7 @@ public class DraftLog {
     
     @NotNull(message = "valid user information")
     @Min(value = 1 ,message="valid user information")
-    Integer user;
+    Integer userId;
     
     
     @NotNull
@@ -52,12 +52,12 @@ public class DraftLog {
 		this.date = date;
 	}
 
-	public Integer getUser() {
-		return user;
+	public Integer getUserId() {
+		return userId;
 	}
 
-	public void setUser(Integer user) {
-		this.user = user;
+	public void setUserId(Integer userId) {
+		this.userId = userId;
 	}
 
 	public String getReason() {
