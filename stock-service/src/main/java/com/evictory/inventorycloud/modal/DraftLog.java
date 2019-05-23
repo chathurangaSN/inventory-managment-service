@@ -13,9 +13,10 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-@Entity
-public class Stock {
 
+@Entity
+public class DraftLog {
+	
 	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Integer id = 0;
@@ -32,8 +33,8 @@ public class Stock {
     @Size(min=1, message="a reason for the entry log")
     String reason;
 
-    @OneToMany(mappedBy = "stock", cascade = CascadeType.ALL)
-    List<StockDetails> stockDetails;
+    @OneToMany(mappedBy = "draftLog", cascade = CascadeType.ALL)
+    List<DraftDetails> draftDetails;
 
 	public Integer getId() {
 		return id;
@@ -67,13 +68,15 @@ public class Stock {
 		this.reason = reason;
 	}
 
-	public List<StockDetails> getStockDetails() {
-		return stockDetails;
+	public List<DraftDetails> getDraftDetails() {
+		return draftDetails;
 	}
 
-	public void setStockDetails(List<StockDetails> stockDetails) {
-		this.stockDetails = stockDetails;
+	public void setDraftDetails(List<DraftDetails> draftDetails) {
+		this.draftDetails = draftDetails;
 	}
-    
+
+	
+
     
 }
