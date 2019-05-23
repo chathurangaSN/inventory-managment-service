@@ -11,7 +11,6 @@ import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-//----- Sahan Part -----
 @Entity
 public class StockDetails {
 
@@ -22,6 +21,14 @@ public class StockDetails {
     @NotNull(message = "valid item information")
     @Min(value = 1 ,message="valid item information")
     Integer itemId;
+    
+    @NotNull(message = "valid UMO information")
+    @Min(value = 1 ,message="valid UMO information")
+    Integer umoId;
+    
+    @NotNull(message = "valid brand information")
+    @Min(value = 1 ,message="valid brand information")
+    Integer brandId;
 
     @NotNull(message = "quantity")
     @Min(value = 0 ,message="valid quantity")
@@ -63,6 +70,23 @@ public class StockDetails {
 	public void setStock(Stock stock) {
 		this.stock = stock;
 	}
+
+	public Integer getUmoId() {
+		return umoId;
+	}
+
+	public void setUmoId(Integer umoId) {
+		this.umoId = umoId;
+	}
+
+	public Integer getBrandId() {
+		return brandId;
+	}
+
+	public void setBrandId(Integer brandId) {
+		this.brandId = brandId;
+	}
     
+	
     
 }

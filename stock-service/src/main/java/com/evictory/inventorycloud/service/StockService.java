@@ -7,7 +7,6 @@ import com.evictory.inventorycloud.modal.StockDetails;
 
 public interface StockService {
 
-	// Sahan Add your stock controller methods
 
 	Boolean saveAll(Stock stock); // save all stock details with log
 
@@ -29,23 +28,6 @@ public interface StockService {
 
 	Boolean deleteAllDetails(Integer id); // delete all stock details for stock log // pass stock log id
 
-	StockDetails fetchAllDetails(Integer id); // get all stock details for stock log  // pass stock log id
 
-	// Sahan methods End...................................................
 
-	// Sachith Add your stock controller methods
-
-	// Sachith methods End.................................................
-
-	// Chamila Add your stock controller methods
-
-	// Chamila methods End.................................................
-
-	// Dilshan Add your stock controller methods
-
-	// Dilshan methods End.................................................
-
-	// Kavishka Add your stock controller methods
-
-	// Kavishka methods End.................................................
 }
