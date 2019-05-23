@@ -21,8 +21,11 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 	@Autowired
 	CurrentStockRepository currentStockRepository;
 
+	boolean foundCurrentStock = false;
+
 	@Override
 	public Boolean save(TransactionLog transactionLog) {
+
 		String issue = "issue";
 		if (transactionLog == null) {
 			throw new NullPointerException("Response body is empty");
@@ -39,30 +42,33 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 						currentStock.setBrandId(transactionDetails.getBrandId());
 						currentStock.setQuantity(transactionDetails.getQuantity());
 						currentStockRepository.save(currentStock);
-					}
-					else {
+					} else {
 						throw new MessageBodyConstraintViolationException("Not enough stocks");
 					}
 				} else {
+
 					for (CurrentStock currentStock : currentStocks) {
 						if (currentStock.getItemId() == transactionDetails.getItemId()
 								&& currentStock.getUomId() == transactionDetails.getUomId()
 								&& currentStock.getBrandId() == transactionDetails.getBrandId()) {
+							foundCurrentStock = true;
 							if (transactionLog.getType().equals(issue)) {
 								currentStock.setQuantity(currentStock.getQuantity() + transactionDetails.getQuantity());
-								//currentStockRepository.save(currentStock);
+								currentStockRepository.save(currentStock);
 							} else {
-								Double qty =0.0;
+								Double qty = 0.0;
 								qty = currentStock.getQuantity() - transactionDetails.getQuantity();
-								if(qty < 0.0) {
+								if (qty < 0.0) {
 									throw new MessageBodyConstraintViolationException("Not enough stocks");
-								}else {
+								} else {
 									currentStock.setQuantity(currentStock.getQuantity() - transactionDetails.getQuantity());
 									currentStockRepository.save(currentStock);
 								}
-								
+
 							}
-						} else {
+							break;
+						}
+						else if(!foundCurrentStock) {
 							CurrentStock currentStockNew = new CurrentStock();
 							if (transactionLog.getType().equals(issue)) {
 								currentStockNew.setItemId(transactionDetails.getItemId());
@@ -70,13 +76,17 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 								currentStockNew.setBrandId(transactionDetails.getBrandId());
 								currentStockNew.setQuantity(transactionDetails.getQuantity());
 								currentStockRepository.save(currentStockNew);
-							}
-							else {
+							} else {
 								throw new MessageBodyConstraintViolationException("Not enough stocks");
 							}
 						}
+						
 					}
+					
+				
 				}
+				
+				
 				//////////////////
 			}
 
