@@ -1,4 +1,9 @@
 package com.evictory.inventorycloud.service;
+import java.text.Format;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -36,10 +41,10 @@ public class StockServiceImpl implements StockService {
 			List<DraftDetails> details = draftLog.getDraftDetails();
 			for (int i = 0; i < details.size(); i++) {
 				if(details.get(i).getItemId() == null || details.get(i).getQuantity() == null 
-						|| details.get(i).getBrandId() == null || details.get(i).getUmoId() == null) {
+						|| details.get(i).getBrandId() == null || details.get(i).getUomId() == null) {
 					throw new MessageBodyConstraintViolationException("Please provide all open stock details.");
 				}else if (details.get(i).getItemId() < 1 || details.get(i).getBrandId() < 1 
-						|| details.get(i).getUmoId() < 1) {
+						|| details.get(i).getUomId() < 1) {
 					throw new MessageBodyConstraintViolationException("Please provide all open stock details.");
 				}
 //				if(openStock.getOpenStockDetails().get(i).getItemId().toString().contains("[0-9]+")) {
@@ -47,7 +52,7 @@ public class StockServiceImpl implements StockService {
 //				}
 				
 			}
-			System.out.println("Get user name "+draftLog.getUser());
+			System.out.println("Get user name "+draftLog.getUserId());
 			for(DraftDetails draftDetails:draftLog.getDraftDetails()) {
 				draftDetails.setDraftLog(draftLog);
 	            System.out.println("dasf" + draftLog.getDraftDetails());
@@ -81,7 +86,7 @@ public class StockServiceImpl implements StockService {
 			Optional<DraftLog> optional= draftLogRepository.findById(id);
 			DraftLog update = optional.get();
 			update.setReason(draftLog.getReason());
-			update.setUser(draftLog.getUser());
+			update.setUserId(draftLog.getUserId());
 			
 			draftLogRepository.save(update);
 			return true;
@@ -141,7 +146,7 @@ public class StockServiceImpl implements StockService {
 			draftDetails.setItemId(details.getItemId());
 			draftDetails.setQuantity(details.getQuantity());
 			draftDetails.setBrandId(details.getBrandId());
-			draftDetails.setUmoId(details.getUmoId());
+			draftDetails.setUomId(details.getUomId());
 			
 			draftDetailsRepository.save(draftDetails);
 			return true;
@@ -190,13 +195,14 @@ public class StockServiceImpl implements StockService {
 	@Override
 	public Boolean saveToMaster(Integer id) { // fetch all draft log entry details and push it as a new entry to stock log and delete if existing draft log
 		boolean isExist = draftLogRepository.existsById(id);
+		System.out.println(isExist);
 		if(isExist) {
 			Optional<DraftLog> optional= draftLogRepository.findById(id);
 			DraftLog draftLog = optional.get();
 			Stock stock = new Stock();
 			stock.setDate(draftLog.getDate());
 			stock.setReason(draftLog.getReason());
-			stock.setUser(draftLog.getUser());
+			stock.setUserId(draftLog.getUserId());
 			List<StockDetails> stockDetails= new ArrayList<StockDetails>();
 			
 			for (int i = 0; i < draftLog.getDraftDetails().size(); i++) {
@@ -204,7 +210,7 @@ public class StockServiceImpl implements StockService {
 				details.setBrandId(draftLog.getDraftDetails().get(i).getBrandId());
 				details.setItemId(draftLog.getDraftDetails().get(i).getItemId());
 				details.setQuantity(draftLog.getDraftDetails().get(i).getQuantity());
-				details.setUmoId(draftLog.getDraftDetails().get(i).getUmoId());
+				details.setUomId(draftLog.getDraftDetails().get(i).getUomId());
 				stockDetails.add(details);
 			}
 			stock.setStockDetails(stockDetails);
@@ -239,6 +245,36 @@ public class StockServiceImpl implements StockService {
 		}else {
 			throw new MessageBodyConstraintViolationException("Stock log entry is not available.");
 		}
+	}
+	
+	@Override
+	public Stock fetchMasterLastEntry(String date) { // 2019-05-23T21:44:43+05:30"
+		// TODO Auto-generated method stub
+//		DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//		 String value = "2019-05-22";
+//	        LocalDateTime ldt = LocalDateTime.parse(value, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+//	        System.out.println("LocalDateTime : " + format.format(ldt));
+//
+//	        //Paris, 2016 Apr-Oct = DST, UTC+2, other months UTC+1
+//	        //UTC+2
+//	        ZonedDateTime parisDateTime = ldt.atZone(ZoneId.of("UTC-4"));
+//	        System.out.println("Depart : " + format.format(parisDateTime));
+
+		ZonedDateTime time = ZonedDateTime.now(ZoneId.of("UTC-4"));
+		
+//		System.out.println(parisDateTime);
+		System.out.println(time);
+		System.out.println(time.getNano());
+		
+		List<Stock> stocks = stockRepository.findAll();
+		if(stocks == null) {
+			throw new MessageBodyConstraintViolationException("Stock log entry is not available.");
+		}else {
+//			Optional<Stock> optional= stockRepository.findById(id);
+			Stock stock = null;
+			return stock;
+		}
+
 	}
 
 }
