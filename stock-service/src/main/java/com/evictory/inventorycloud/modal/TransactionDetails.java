@@ -18,8 +18,8 @@ public class TransactionDetails {
 	private Integer id;
 	private Integer itemId;
 	private Double quantity;
-	private Integer uomid;
-	private Integer brandid;
+	private Integer uomId;
+	private Integer brandId;
 	
 	@ManyToOne
     @JoinColumn(name = "transactionLogId")
@@ -50,20 +50,20 @@ public class TransactionDetails {
 		this.quantity = quantity;
 	}
 
-	public Integer getUomid() {
-		return uomid;
+	public Integer getUomId() {
+		return uomId;
 	}
 
-	public void setUomid(Integer uomid) {
-		this.uomid = uomid;
+	public void setUomId(Integer uomId) {
+		this.uomId = uomId;
 	}
 
-	public Integer getBrandid() {
-		return brandid;
+	public Integer getBrandId() {
+		return brandId;
 	}
 
-	public void setBrandid(Integer brandid) {
-		this.brandid = brandid;
+	public void setBrandId(Integer brandId) {
+		this.brandId = brandId;
 	}
 
 	public TransactionLog getTransactionlog() {
@@ -73,9 +73,7 @@ public class TransactionDetails {
 	public void setTransactionlog(TransactionLog transactionlog) {
 		this.transactionlog = transactionlog;
 	}
-	
-	
-	
+
 
 	
 

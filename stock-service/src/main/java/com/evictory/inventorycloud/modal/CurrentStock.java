@@ -1,6 +1,5 @@
 package com.evictory.inventorycloud.modal;
 
-import java.time.ZonedDateTime;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,11 +12,9 @@ public class CurrentStock {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 	private Integer itemId;
-	private ZonedDateTime date;
-	private Integer userId;
+	private Integer uomId;
+	private Integer brandId;
 	private Double quantity;
-	private String transferRefference;
-	
 	public Integer getId() {
 		return id;
 	}
@@ -30,17 +27,17 @@ public class CurrentStock {
 	public void setItemId(Integer itemId) {
 		this.itemId = itemId;
 	}
-	public ZonedDateTime getDate() {
-		return date;
+	public Integer getUomId() {
+		return uomId;
 	}
-	public void setDate(ZonedDateTime date) {
-		this.date = date;
+	public void setUomId(Integer uomId) {
+		this.uomId = uomId;
 	}
-	public Integer getUserId() {
-		return userId;
+	public Integer getBrandId() {
+		return brandId;
 	}
-	public void setUserId(Integer userId) {
-		this.userId = userId;
+	public void setBrandId(Integer brandId) {
+		this.brandId = brandId;
 	}
 	public Double getQuantity() {
 		return quantity;
@@ -48,14 +45,6 @@ public class CurrentStock {
 	public void setQuantity(Double quantity) {
 		this.quantity = quantity;
 	}
-	public String getTransferRefference() {
-		return transferRefference;
-	}
-	public void setTransferRefference(String transferRefference) {
-		this.transferRefference = transferRefference;
-	}
 	
-
 	
-
 }
