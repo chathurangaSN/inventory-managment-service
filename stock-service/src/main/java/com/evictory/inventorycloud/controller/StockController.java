@@ -208,7 +208,9 @@ public class StockController {
 	// with details by id
 	public ResponseEntity<?> fetchMasterLastEntry(@PathVariable String date) { // stock log id
 		Stock stock = null;
-		stockService.fetchMasterLastEntry(date);
+//		String date1 = "2019-05-25";
+		stock = stockService.fetchMasterLastEntry(date);
+		
 		if (stock == null) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(oncall(false, "GET"));
 		} else {
