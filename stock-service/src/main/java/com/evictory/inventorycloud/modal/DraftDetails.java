@@ -22,9 +22,9 @@ public class DraftDetails {
     @Min(value = 1 ,message="valid item information")
     Integer itemId;
     
-    @NotNull(message = "valid UMO information")
-    @Min(value = 1 ,message="valid UMO information")
-    Integer umoId;
+    @NotNull(message = "valid UOM information")
+    @Min(value = 1 ,message="valid UOM information")
+    Integer uomId;
     
     @NotNull(message = "valid brand information")
     @Min(value = 1 ,message="valid brand information")
@@ -32,7 +32,7 @@ public class DraftDetails {
 
     @NotNull(message = "quantity")
     @Min(value = 0 ,message="valid quantity")
-    Integer quantity;
+    Double quantity;
 
     @ManyToOne
     @JoinColumn(name = "OSid")
@@ -55,12 +55,20 @@ public class DraftDetails {
 		this.itemId = itemId;
 	}
 
-	public Integer getUmoId() {
-		return umoId;
+	public Integer getUomId() {
+		return uomId;
 	}
 
-	public void setUmoId(Integer umoId) {
-		this.umoId = umoId;
+	public void setUomId(Integer uomId) {
+		this.uomId = uomId;
+	}
+
+	public void setQuantity(Double quantity) {
+		this.quantity = quantity;
+	}
+
+	public Double getQuantity() {
+		return quantity;
 	}
 
 	public Integer getBrandId() {
@@ -69,14 +77,6 @@ public class DraftDetails {
 
 	public void setBrandId(Integer brandId) {
 		this.brandId = brandId;
-	}
-
-	public Integer getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(Integer quantity) {
-		this.quantity = quantity;
 	}
 
 	public DraftLog getDraftLog() {
