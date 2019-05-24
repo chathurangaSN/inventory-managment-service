@@ -21,7 +21,7 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 	@Autowired
 	CurrentStockRepository currentStockRepository;
 
-	boolean foundCurrentStock = false;
+	// boolean foundCurrentStock = false;
 
 	@Override
 	public Boolean save(TransactionLog transactionLog) {
@@ -32,8 +32,17 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 		} else {
 			for (TransactionDetails transactionDetails : transactionLog.getTransactionDetails()) {
 				transactionDetails.setTransactionlog(transactionLog);
-/////////////////
+
 				List<CurrentStock> currentStocks = currentStockRepository.findAll();
+
+				Optional<CurrentStock> currentStockoptional = Optional.empty();
+				for (CurrentStock currentStock : currentStocks) {
+					if (currentStock.getItemId() == transactionDetails.getItemId()
+							&& currentStock.getUomId() == transactionDetails.getUomId()
+							&& currentStock.getBrandId() == transactionDetails.getBrandId()) {
+						currentStockoptional = Optional.of(currentStock);
+					}
+				}
 				if (currentStocks == null || currentStocks.size() == 0) {
 					if (transactionLog.getType().equals(issue)) {
 						CurrentStock currentStock = new CurrentStock();
@@ -45,54 +54,46 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 					} else {
 						throw new MessageBodyConstraintViolationException("Not enough stocks");
 					}
-				} else {
-
-					for (CurrentStock currentStock : currentStocks) {
-						if (currentStock.getItemId() == transactionDetails.getItemId()
-								&& currentStock.getUomId() == transactionDetails.getUomId()
-								&& currentStock.getBrandId() == transactionDetails.getBrandId()) {
-							foundCurrentStock = true;
-							if (transactionLog.getType().equals(issue)) {
-								currentStock.setQuantity(currentStock.getQuantity() + transactionDetails.getQuantity());
-								currentStockRepository.save(currentStock);
-							} else {
-								Double qty = 0.0;
-								qty = currentStock.getQuantity() - transactionDetails.getQuantity();
-								if (qty < 0.0) {
-									throw new MessageBodyConstraintViolationException("Not enough stocks");
-								} else {
-									currentStock.setQuantity(currentStock.getQuantity() - transactionDetails.getQuantity());
-									currentStockRepository.save(currentStock);
-								}
-
-							}
-							break;
-						}
-						else if(!foundCurrentStock) {
-							CurrentStock currentStockNew = new CurrentStock();
-							if (transactionLog.getType().equals(issue)) {
-								currentStockNew.setItemId(transactionDetails.getItemId());
-								currentStockNew.setUomId(transactionDetails.getUomId());
-								currentStockNew.setBrandId(transactionDetails.getBrandId());
-								currentStockNew.setQuantity(transactionDetails.getQuantity());
-								currentStockRepository.save(currentStockNew);
-							} else {
-								throw new MessageBodyConstraintViolationException("Not enough stocks");
-							}
-						}
-						
-					}
-					
-				
 				}
-				
-				
-				//////////////////
-			}
 
-			transactionLogRepository.save(transactionLog);
-			return true;
+				else if (currentStockoptional.isPresent()) {
+					CurrentStock cS = new CurrentStock();
+					cS = currentStockoptional.get();
+					if (transactionLog.getType().equals(issue)) {
+						
+						cS.setQuantity(cS.getQuantity() + transactionDetails.getQuantity());
+						currentStockRepository.save(cS);
+					} else {
+						Double qty = 0.0;
+						qty = cS.getQuantity() - transactionDetails.getQuantity();
+						if (qty < 0.0) {
+							throw new MessageBodyConstraintViolationException("Not enough stocks");
+						} else {
+							cS.setQuantity(cS.getQuantity() - transactionDetails.getQuantity());
+							currentStockRepository.save(cS);
+						}
+
+					}
+				}
+				else {
+					if (transactionLog.getType().equals(issue)) {
+						CurrentStock currentStockNew = new CurrentStock();
+						currentStockNew.setItemId(transactionDetails.getItemId());
+						currentStockNew.setUomId(transactionDetails.getUomId());
+						currentStockNew.setBrandId(transactionDetails.getBrandId());
+						currentStockNew.setQuantity(transactionDetails.getQuantity());
+						currentStockRepository.save(currentStockNew);
+					} else {
+						throw new MessageBodyConstraintViolationException("Not enough stocks");
+					}
+				}
+
+			}
 		}
+
+		transactionLogRepository.save(transactionLog);
+		return true;
+
 	}
 
 	@Override
