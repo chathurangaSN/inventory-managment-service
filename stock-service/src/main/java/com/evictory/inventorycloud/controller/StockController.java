@@ -127,14 +127,14 @@ public class StockController {
 	}
 
 	// update existing Draft details entry
-	@RequestMapping(value = "/openstock/draft/details/{sid}", method = RequestMethod.PUT)
-	public ResponseEntity<?> updateDetails(@Valid @PathVariable String sid, @RequestBody DraftDetails details) {
-		int id;
-		if (!NumberUtils.isCreatable(sid)) {
-			throw new RuntimeException("ID should be an Interger");
-		} else {
-			id = Integer.valueOf(sid);
-		}
+	@RequestMapping(value = "/openstock/draft/details/{id}", method = RequestMethod.PUT)
+	public ResponseEntity<?> updateDetails(@Valid @PathVariable Integer id, @RequestBody DraftDetails details) {
+//		int id;
+//		if (!NumberUtils.isCreatable(sid)) {
+//			throw new RuntimeException("ID should be an Interger");
+//		} else {
+//			id = Integer.valueOf(sid);
+//		}
 
 		if (stockService.updateDetails(id, details)) {
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body(oncall(true, "PUT"));
@@ -157,6 +157,16 @@ public class StockController {
 	}
 
 	// fetch all Draft details by Draft log by id
+	@RequestMapping(value = "/openstock/draft/detailsAll/{id}", method = RequestMethod.GET)
+	public ResponseEntity<?> fetchAllDetails(@PathVariable Integer id) {
+		List<DraftDetails> draftDetails = stockService.fetchAllDetails(id);
+//		if (draftDetails == null) {
+//			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
+//		}
+		return ResponseEntity.status(HttpStatus.ACCEPTED).body(draftDetails);
+
+	}
+	// delete all details of draft details by draft log id
 	@RequestMapping(value = "/openstock/draft/detailsAll/{id}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteAllDetails(@PathVariable Integer id) {
 
