@@ -230,6 +230,17 @@ public class StockController {
 		}
 
 	}
+	
+	@RequestMapping(value = "/openstock/master/{date}/{itemId}/{uomId}/{brandId}", method = RequestMethod.GET) 
+	// fetch Stock Movement Report
+	// with details by id
+	public ResponseEntity<?> fetchStockMovementReport(@PathVariable String date, @PathVariable Integer itemId,
+			@PathVariable Integer uomId, @PathVariable Integer brandId) { 
+		
+		
+			return fetchStockMovementReport(date, itemId, uomId, brandId);
+
+	}
 
 	public Response oncall(boolean ifsuccess, String type) {
 		Response response = new Response();
