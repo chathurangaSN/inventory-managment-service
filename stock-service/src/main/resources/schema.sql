@@ -1,11 +1,11 @@
-drop table if exists currentStock;
+drop table if exists CurrentStock;
 drop table if exists DraftDetails;
 drop table if exists DraftLog;
 drop table if exists Stock;
 drop table if exists StockDetails;
-drop table if exists transaction_details;
-drop table if exists transaction_log;
-create table currentStock (
+drop table if exists TransactionDetails;
+drop table if exists TransactionLog;
+create table CurrentStock (
        id integer not null auto_increment,
         brandId integer,
         itemId integer,
@@ -45,20 +45,20 @@ create table StockDetails (
         OSid integer,
         primary key (id)
     );
-create table transaction_details (
+create table TransactionDetails (
        id integer not null auto_increment,
-        brand_id integer,
-        item_id integer,
+        brandId integer,
+        itemId integer,
         quantity double precision,
-        uom_id integer,
-        transaction_log_id integer,
+        uomId integer,
+        transactionLogId integer,
         primary key (id)
     ); 
-create table transaction_log (
+create table TransactionLog (
        id integer not null auto_increment,
         date datetime,
         type varchar(255),
-        user_id varchar(255),
+        userId varchar(255),
         primary key (id)
     );  
 
