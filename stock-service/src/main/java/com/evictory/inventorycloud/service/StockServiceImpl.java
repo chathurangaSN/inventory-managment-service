@@ -148,6 +148,7 @@ public class StockServiceImpl implements StockService {
 	public Boolean updateDetails(Integer id, DraftDetails details) { // update stock details for respective stock log //
 																		// pass id of stock details
 		boolean isExist = draftDetailsRepository.existsById(id);
+		System.out.println("isExist" + isExist);
 		if (isExist) {
 			Optional<DraftDetails> optional = draftDetailsRepository.findById(id);
 			DraftDetails draftDetails = optional.get();
@@ -175,6 +176,24 @@ public class StockServiceImpl implements StockService {
 			throw new MessageBodyConstraintViolationException("Stock details entry not available.");
 		}
 
+	}
+	@Override
+	public List<DraftDetails> fetchAllDetails(Integer id) { // fetch all stock details by stock log // pass id of stock details
+		
+		boolean isExist = draftLogRepository.existsById(id);
+		if (isExist) {
+			Optional<DraftLog> optional = draftLogRepository.findById(id);
+			if (optional.isPresent()) {
+				
+				List<DraftDetails> details = optional.get().getDraftDetails();
+				return details;
+			}else {
+				throw new MessageBodyConstraintViolationException("Draft Details are not available.");
+			}
+			
+		} else {
+			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
+		}
 	}
 
 	@Override
