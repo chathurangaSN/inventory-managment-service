@@ -2,6 +2,8 @@ package com.evictory.inventorycloud.service;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
+
 import com.evictory.inventorycloud.modal.DraftLog;
 import com.evictory.inventorycloud.modal.Stock;
 import com.evictory.inventorycloud.modal.DraftDetails;
@@ -38,4 +40,6 @@ public interface StockService {
 	Stock fetchMaster(Integer id); // fetch  permanent added stock entries with details by id
 	
 	Stock fetchMasterLastEntry(String date); // fetch  the last entry on open stock by date 
+	
+	ResponseEntity<?> fetchStockMovementReport(String date,Integer itemId,Integer uomId,Integer brandId);
 }
