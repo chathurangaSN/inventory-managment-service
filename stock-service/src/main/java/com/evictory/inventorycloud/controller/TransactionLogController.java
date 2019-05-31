@@ -48,7 +48,7 @@ public class TransactionLogController {
         
     }
 	
-	 @RequestMapping(value = "viewTransactionLog", method = RequestMethod.GET) // fetch all current stock records
+	 @RequestMapping(value = "/viewTransactionLog", method = RequestMethod.GET) // fetch all current stock records
 	    public ResponseEntity<?> fetchAllTransactionLog() {  
 	    	List<TransactionLog> transactionLogs = transactionLogService.fetchAll();
 			if(transactionLogs == null || transactionLogs.size() == 0) {

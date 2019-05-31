@@ -18,16 +18,22 @@ import java.util.Random;
 
 import org.aspectj.apache.bcel.classfile.Module.Open;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.evictory.inventorycloud.exception.MessageBodyConstraintViolationException;
 import com.evictory.inventorycloud.modal.DraftLog;
 import com.evictory.inventorycloud.modal.Stock;
 import com.evictory.inventorycloud.modal.StockDetails;
+import com.evictory.inventorycloud.modal.TransactionDetails;
+import com.evictory.inventorycloud.modal.TransactionLog;
 import com.evictory.inventorycloud.modal.DraftDetails;
+import com.evictory.inventorycloud.repository.CurrentStockRepository;
 import com.evictory.inventorycloud.repository.DraftDetailsRepository;
 import com.evictory.inventorycloud.repository.DraftLogRepository;
 import com.evictory.inventorycloud.repository.StockRepository;
+import com.evictory.inventorycloud.repository.TransactionLogRepository;
 
 @Service
 public class StockServiceImpl implements StockService {
@@ -40,6 +46,12 @@ public class StockServiceImpl implements StockService {
 
 	@Autowired
 	StockRepository stockRepository;
+	
+	@Autowired
+	TransactionLogRepository transactionLogRepository;
+	
+	@Autowired
+	CurrentStockRepository currentStockRepository;
 
 	@Override
 	public Boolean saveAll(DraftLog draftLog) { // save all stock details with log
@@ -360,4 +372,190 @@ public class StockServiceImpl implements StockService {
 
 	}
 
+	@Override
+	public ResponseEntity<?> fetchStockMovementReport(String date, Integer itemId, Integer uomId, Integer brandId) {
+		final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
+		final DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
+		
+		Stock lastOpenStock = this.fetchMasterLastEntry(date);
+		if(lastOpenStock == null) {
+			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
+		}
+		ZonedDateTime lastOpenStockDate = lastOpenStock.getDate();
+	
+		
+		try {
+			
+			
+			Date getlastDate = dateFormat.parse(lastOpenStockDate.format(dateTimeFormatter));
+			
+			List<TransactionLog> logs = transactionLogRepository.findAll();
+			
+			System.out.println(getlastDate);
+
+			
+
+			
+			List<TransactionLog> newFilteredAfterDates = new ArrayList<TransactionLog>();
+			
+			for (int i = 0; i < logs.size(); i++) { // sort the transactions after open stock last date
+				Date getDateOfStock = dateFormat.parse(logs.get(i).getDate().format(dateTimeFormatter));
+				if (getDateOfStock.compareTo(getlastDate) == 0) {
+					System.out.println("nearest = " + getDateOfStock);
+				
+				} else {
+					if (getDateOfStock.after(getlastDate)) {
+						System.out.println("Added Values to new list "+ getDateOfStock);
+						newFilteredAfterDates.add(logs.get(i));
+					}
+				}
+			}
+			
+
+			List<TransactionLog> newFilteredAfterItemSort = new ArrayList<TransactionLog>();
+			
+			for (int i = 0; i < newFilteredAfterDates.size(); i++) { // sort buy item, brand and umo id
+				
+				List<TransactionDetails> transactionDetails = newFilteredAfterDates.get(i).getTransactionDetails();
+				
+				for (int j = 0; j < transactionDetails.size(); j++) {
+					if(transactionDetails.get(j).getItemId() == itemId && transactionDetails.get(j).getUomId() == uomId 
+							&& transactionDetails.get(j).getBrandId() == brandId ) {
+						TransactionLog transactionLog = new TransactionLog();
+						List<TransactionDetails> details = new ArrayList<TransactionDetails>();
+						transactionLog.setId(newFilteredAfterDates.get(i).getId());
+						transactionLog.setDate(newFilteredAfterDates.get(i).getDate());
+						transactionLog.setType(newFilteredAfterDates.get(i).getType());
+						transactionLog.setUserId(newFilteredAfterDates.get(i).getUserId());
+						details.add(transactionDetails.get(j));
+						transactionLog.setTransactionDetails(details);
+						newFilteredAfterItemSort.add(transactionLog);
+					}
+				}
+				
+			}
+			List<TransactionLog> transactionLogsIssue = new ArrayList<TransactionLog>();
+			List<TransactionLog> transactionLogsRecived = new ArrayList<TransactionLog>();
+			
+			for (int j = 0; j < newFilteredAfterItemSort.size(); j++) {
+				switch (newFilteredAfterItemSort.get(j).getType()) {
+				case "issue":
+					transactionLogsIssue.add(newFilteredAfterItemSort.get(j));
+					break;
+				case "receive":
+					transactionLogsRecived.add(newFilteredAfterItemSort.get(j));
+					break;
+
+				default:
+					break;
+				}
+			}
+			Stock stock  = new Stock();
+			for (int j = 0; j < lastOpenStock.getStockDetails().size(); j++) {
+				if(lastOpenStock.getStockDetails().get(j).getItemId() == itemId 
+						&& lastOpenStock.getStockDetails().get(j).getUomId() == uomId 
+						&& lastOpenStock.getStockDetails().get(j).getBrandId() == brandId ) {
+//					Stock stock  = new Stock();
+					List<StockDetails> details = new ArrayList<StockDetails>();
+					stock.setId(lastOpenStock.getId());
+					stock.setDate(lastOpenStock.getDate());
+					stock.setReason(lastOpenStock.getReason());
+					stock.setUserId(lastOpenStock.getUserId());
+					details.add(lastOpenStock.getStockDetails().get(j));
+					stock.setStockDetails(details);
+					
+				}
+			}
+			
+			StockMovementResponse stockMovementResponse = new StockMovementResponse();
+			stockMovementResponse.setResponse("Sucess");
+			stockMovementResponse.setStock(stock);
+			stockMovementResponse.setTransactionLogsIssue(transactionLogsIssue);
+			stockMovementResponse.setTransactionLogsRecived(transactionLogsRecived);
+			
+			return new ResponseEntity<>(stockMovementResponse, HttpStatus.ACCEPTED);
+			
+			
+		} catch (ParseException ex) {
+			ex.printStackTrace();
+		}
+
+		Response response = new Response();
+		response.setResponse("Failed");
+		response.setMessage("Failed to withdraw from database.");
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+	}
+	
+	class Response {
+
+		private String response;
+		private String message;
+
+		public String getResponse() {
+			return response;
+		}
+
+		public void setResponse(String response) {
+			this.response = response;
+		}
+
+		public String getMessage() {
+			return message;
+		}
+
+		public void setMessage(String message) {
+			this.message = message;
+		}
+
+	}
+	
+	class StockMovementResponse{
+	   	 
+    	private String response;
+//    	private String message;
+    	private Stock stock;
+    	
+    	private List<TransactionLog> transactionLogsIssue;
+    	
+    	private List<TransactionLog> transactionLogsRecived;
+
+		public String getResponse() {
+			return response;
+		}
+
+		public void setResponse(String response) {
+			this.response = response;
+		}
+
+		public Stock getStock() {
+			return stock;
+		}
+
+		public void setStock(Stock stock) {
+			this.stock = stock;
+		}
+
+		public List<TransactionLog> getTransactionLogsIssue() {
+			return transactionLogsIssue;
+		}
+
+		public void setTransactionLogsIssue(List<TransactionLog> transactionLogsIssue) {
+			this.transactionLogsIssue = transactionLogsIssue;
+		}
+
+		public List<TransactionLog> getTransactionLogsRecived() {
+			return transactionLogsRecived;
+		}
+
+		public void setTransactionLogsRecived(List<TransactionLog> transactionLogsRecived) {
+			this.transactionLogsRecived = transactionLogsRecived;
+		}
+    	
+    	
+    	
+		
+    	
+    	
+    }
 }
