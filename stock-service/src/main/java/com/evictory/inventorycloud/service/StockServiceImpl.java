@@ -376,22 +376,24 @@ public class StockServiceImpl implements StockService {
 	public ResponseEntity<?> fetchStockMovementReport(String date, Integer itemId, Integer uomId, Integer brandId) {
 		final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
 		final DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
-		final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		Stock lastOpenStock = fetchMasterLastEntry(date);
+		
+		Stock lastOpenStock = this.fetchMasterLastEntry(date);
+		if(lastOpenStock == null) {
+			throw new MessageBodyConstraintViolationException("Stock log entry not available.");
+		}
 		ZonedDateTime lastOpenStockDate = lastOpenStock.getDate();
-		Date passedDate = null;
+	
 		
 		try {
 			
 			
 			Date getlastDate = dateFormat.parse(lastOpenStockDate.format(dateTimeFormatter));
-			List<Date> logDates = new ArrayList<Date>();
+			
 			List<TransactionLog> logs = transactionLogRepository.findAll();
 			
 			System.out.println(getlastDate);
 
-			List<Stock> stocks = stockRepository.findAll();
-			List<Date> recivedDates = new ArrayList<Date>();
+			
 
 			
 			List<TransactionLog> newFilteredAfterDates = new ArrayList<TransactionLog>();
@@ -409,20 +411,23 @@ public class StockServiceImpl implements StockService {
 				}
 			}
 			
+
 			List<TransactionLog> newFilteredAfterItemSort = new ArrayList<TransactionLog>();
-			List<TransactionDetails> details = new ArrayList<TransactionDetails>();
+			
 			for (int i = 0; i < newFilteredAfterDates.size(); i++) { // sort buy item, brand and umo id
 				
 				List<TransactionDetails> transactionDetails = newFilteredAfterDates.get(i).getTransactionDetails();
 				
 				for (int j = 0; j < transactionDetails.size(); j++) {
-					if(transactionDetails.get(i).getItemId() == itemId && transactionDetails.get(i).getUomId() == uomId 
-							&& transactionDetails.get(i).getBrandId() == brandId ) {
+					if(transactionDetails.get(j).getItemId() == itemId && transactionDetails.get(j).getUomId() == uomId 
+							&& transactionDetails.get(j).getBrandId() == brandId ) {
 						TransactionLog transactionLog = new TransactionLog();
+						List<TransactionDetails> details = new ArrayList<TransactionDetails>();
+						transactionLog.setId(newFilteredAfterDates.get(i).getId());
 						transactionLog.setDate(newFilteredAfterDates.get(i).getDate());
 						transactionLog.setType(newFilteredAfterDates.get(i).getType());
 						transactionLog.setUserId(newFilteredAfterDates.get(i).getUserId());
-						details.add(transactionDetails.get(i));
+						details.add(transactionDetails.get(j));
 						transactionLog.setTransactionDetails(details);
 						newFilteredAfterItemSort.add(transactionLog);
 					}
@@ -437,7 +442,7 @@ public class StockServiceImpl implements StockService {
 				case "issue":
 					transactionLogsIssue.add(newFilteredAfterItemSort.get(j));
 					break;
-				case "revived":
+				case "receive":
 					transactionLogsRecived.add(newFilteredAfterItemSort.get(j));
 					break;
 
@@ -445,10 +450,26 @@ public class StockServiceImpl implements StockService {
 					break;
 				}
 			}
+			Stock stock  = new Stock();
+			for (int j = 0; j < lastOpenStock.getStockDetails().size(); j++) {
+				if(lastOpenStock.getStockDetails().get(j).getItemId() == itemId 
+						&& lastOpenStock.getStockDetails().get(j).getUomId() == uomId 
+						&& lastOpenStock.getStockDetails().get(j).getBrandId() == brandId ) {
+//					Stock stock  = new Stock();
+					List<StockDetails> details = new ArrayList<StockDetails>();
+					stock.setId(lastOpenStock.getId());
+					stock.setDate(lastOpenStock.getDate());
+					stock.setReason(lastOpenStock.getReason());
+					stock.setUserId(lastOpenStock.getUserId());
+					details.add(lastOpenStock.getStockDetails().get(j));
+					stock.setStockDetails(details);
+					
+				}
+			}
 			
 			StockMovementResponse stockMovementResponse = new StockMovementResponse();
 			stockMovementResponse.setResponse("Sucess");
-			stockMovementResponse.setStock(lastOpenStock);
+			stockMovementResponse.setStock(stock);
 			stockMovementResponse.setTransactionLogsIssue(transactionLogsIssue);
 			stockMovementResponse.setTransactionLogsRecived(transactionLogsRecived);
 			

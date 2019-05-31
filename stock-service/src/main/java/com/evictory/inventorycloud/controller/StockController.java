@@ -231,14 +231,13 @@ public class StockController {
 
 	}
 	
-	@RequestMapping(value = "/openstock/master/{date}/{itemId}/{uomId}/{brandId}", method = RequestMethod.GET) 
+	@RequestMapping(value = "/openstock/master/{date}/{brandId}/{itemId}/{uomId}", method = RequestMethod.GET) 
 	// fetch Stock Movement Report
-	// with details by id
-	public ResponseEntity<?> fetchStockMovementReport(@PathVariable String date, @PathVariable Integer itemId,
+	
+	public ResponseEntity<?> fetchStockMovement(@PathVariable String date, @PathVariable Integer itemId,
 			@PathVariable Integer uomId, @PathVariable Integer brandId) { 
 		
-		
-			return fetchStockMovementReport(date, itemId, uomId, brandId);
+			return stockService.fetchStockMovementReport(date, itemId, uomId, brandId);
 
 	}
 
