@@ -26,6 +26,8 @@ public interface StockService {
 	Boolean updateDetails(Integer id, DraftDetails details); // update stock details for respective stock log // pass id of stock details
 
 	Boolean deleteDetails(Integer id); // delete stock details // pass id of stock details
+	
+	List<DraftDetails> fetchAllDetails(Integer id); // fetch all stock details by stock log // pass id of stock details
 
 	Boolean deleteAllDetails(Integer id); // delete all stock details for stock log // pass stock log id
 
