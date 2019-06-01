@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-
+import com.evictory.inventorycloud.modal.CurrentStock;
 import com.evictory.inventorycloud.modal.TransactionLog;
 import com.evictory.inventorycloud.service.TransactionLogService;
 
@@ -36,6 +36,15 @@ public class TransactionLogController {
 	public final String messageSuccessDELETE = "Succesfully delete from database.";
 	public final String messageFailedDELETE = "Failed to Delete from database.";
 	
+	@RequestMapping(value = "/viewCurrentStockByDate/{date}", method = RequestMethod.GET) 
+    public ResponseEntity<?> currentStockByDate(@PathVariable String date) {  
+    	List<CurrentStock> currentStocks = transactionLogService.currentStockByDate(date);
+		if(currentStocks == null || currentStocks.size() == 0) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(oncall(false,"GET"));
+		}else {
+			return ResponseEntity.ok(currentStocks);			
+		}
+	}
 	
 	@RequestMapping(value = "/save", method = RequestMethod.POST) // create current stock with all its details
     public ResponseEntity<?> save(@RequestBody TransactionLog transactionLog)  {
