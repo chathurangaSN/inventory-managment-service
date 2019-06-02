@@ -288,15 +288,15 @@ public class StockServiceImpl implements StockService {
 
 	@Override
 	public Stock fetchMasterLastEntry(String date) { // 2019-05-23T21:44:43+05:30"
-		
+		date = date+" 23:59:59";
 		Integer id = 0;
 		final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd HH:mm:ss");
 		final DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
-		final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Date passedDate = null;
 		try {
 			passedDate = format.parse(date);
-
+			System.out.println("first fetch start" + date);
 			System.out.println(passedDate);
 
 			List<Stock> stocks = stockRepository.findAll();
@@ -452,19 +452,25 @@ public class StockServiceImpl implements StockService {
 			}
 			Stock stock  = new Stock();
 			for (int j = 0; j < lastOpenStock.getStockDetails().size(); j++) {
+				stock.setId(lastOpenStock.getId());
+				stock.setDate(lastOpenStock.getDate());
+				stock.setReason(lastOpenStock.getReason());
+				stock.setUserId(lastOpenStock.getUserId());
+				
 				if(lastOpenStock.getStockDetails().get(j).getItemId() == itemId 
 						&& lastOpenStock.getStockDetails().get(j).getUomId() == uomId 
 						&& lastOpenStock.getStockDetails().get(j).getBrandId() == brandId ) {
 //					Stock stock  = new Stock();
 					List<StockDetails> details = new ArrayList<StockDetails>();
-					stock.setId(lastOpenStock.getId());
-					stock.setDate(lastOpenStock.getDate());
-					stock.setReason(lastOpenStock.getReason());
-					stock.setUserId(lastOpenStock.getUserId());
+//					stock.setId(lastOpenStock.getId());
+//					stock.setDate(lastOpenStock.getDate());
+//					stock.setReason(lastOpenStock.getReason());
+//					stock.setUserId(lastOpenStock.getUserId());
 					details.add(lastOpenStock.getStockDetails().get(j));
 					stock.setStockDetails(details);
 					
 				}
+				
 			}
 			
 			StockMovementResponse stockMovementResponse = new StockMovementResponse();

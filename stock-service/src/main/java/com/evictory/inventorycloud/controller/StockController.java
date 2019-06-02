@@ -25,7 +25,7 @@ import com.evictory.inventorycloud.modal.DraftDetails;
 import com.evictory.inventorycloud.service.StockService;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping(value = "/stock")
 public class StockController {
 
@@ -60,6 +60,7 @@ public class StockController {
 																			// stock details
 	public ResponseEntity<?> fetchAll() {
 
+		System.out.println("Insude the get method");
 		List<DraftLog> openStocks = stockService.fetchAll();
 		if (openStocks == null || openStocks.size() == 0) {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(oncall(false, "GET"));
@@ -180,8 +181,8 @@ public class StockController {
 
 	// fetch all draft log entry details and push it as a new entry to stock log and
 	// delete if existing draft log
-	@RequestMapping(value = "/openstock/master/{id}", method = RequestMethod.POST)
-	public ResponseEntity<?> saveToMaster(@PathVariable Integer id) { // draft log id
+	@RequestMapping(value = "/openstock/master", method = RequestMethod.POST)
+	public ResponseEntity<?> saveToMaster(@RequestBody Integer id ) { // draft log id
 
 		if (stockService.saveToMaster(id)) {
 			return ResponseEntity.status(HttpStatus.ACCEPTED).body(oncall(true, "POST"));
