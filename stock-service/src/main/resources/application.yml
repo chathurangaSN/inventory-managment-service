@@ -30,8 +30,6 @@ logging:
       hibernate:
         type: trace
         
-
-             
 #security:
 #  oauth2:
 #    resource:
@@ -39,4 +37,5 @@ logging:
 #
 #    client:
 #      client-id: web
+#      client-secret: web
 #  
