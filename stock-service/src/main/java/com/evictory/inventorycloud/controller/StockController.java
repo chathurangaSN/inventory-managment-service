@@ -25,7 +25,7 @@ import com.evictory.inventorycloud.modal.DraftDetails;
 import com.evictory.inventorycloud.service.StockService;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin()
 @RequestMapping(value = "/stock")
 public class StockController {
 
