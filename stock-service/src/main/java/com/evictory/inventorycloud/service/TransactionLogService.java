@@ -2,6 +2,7 @@ package com.evictory.inventorycloud.service;
 
 import java.util.List;
 
+import com.evictory.inventorycloud.modal.CurrentStock;
 import com.evictory.inventorycloud.modal.TransactionLog;
 
 public interface TransactionLogService {
@@ -16,4 +17,5 @@ public interface TransactionLogService {
 
 	Boolean delete(Integer id);
 
+	List<CurrentStock> currentStockByDate(String date);
 }
